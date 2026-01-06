@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>천국의 비밀 계시</title>
+    
+    <!-- 캐시 방지 및 브라우저 제어 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="천국의비밀">
+    <meta name="theme-color" content="#111621">
+    
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/holy-bible.png">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/holy-bible.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --bg-splash: #111621;
+            --primary: #1754cf;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-splash);
+            overflow: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            /* 터치 액션 제한: 핀치 줌 방지 보조 */
+            touch-action: pan-x pan-y;
+        }
+
+        .material-symbols-outlined {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            color: transparent;
+        }
+
+        .fonts-loaded .material-symbols-outlined {
+            color: inherit;
+        }
+
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-splash);
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-icon {
+            width: 120px; 
+            height: 120px;
+            margin-bottom: 20px;
+            border-radius: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #root { 
+            opacity: 0;
+            transition: opacity 0.4s ease-in;
+        }
+
+        #root.ready { opacity: 1; }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1754cf',
+                        background: { light: '#f6f6f8', dark: '#111621' },
+                        surface: { light: '#ffffff', dark: '#1e2532' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/"
+      }
+    }
+    </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-background-light dark:bg-background-dark">
+    <div id="splash-screen">
+        <img src="https://img.icons8.com/fluency/192/holy-bible.png" alt="Logo" class="splash-icon">
+        <div style="color:white; font-weight:bold; font-size:1.2rem;">천국의 비밀 계시</div>
+    </div>
+    
+    <div id="root"></div>
+
+    <script>
+        // 핀치 줌(두 손가락 확대) 방지
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // 더블 탭 확대 방지
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Safari 전용 제스처 방지
+        document.addEventListener('gesturestart', function (event) {
+            event.preventDefault();
+        });
+
+        // 서비스 워커 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed', err));
+            });
+        }
+
+        document.fonts.ready.then(() => {
+            document.body.classList.add('fonts-loaded');
+        });
+
+        window.removeSplash = function() {
+            const splash = document.getElementById('splash-screen');
+            const root = document.getElementById('root');
+            if (splash) {
+                splash.style.opacity = '0';
+                root.classList.add('ready');
+                setTimeout(() => splash.remove(), 500);
+            }
+        };
+
+        setTimeout(window.removeSplash, 3500);
+    </script>
+    
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
